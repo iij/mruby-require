@@ -18,7 +18,6 @@ class LoadUtil
     raise NotImplementedError.new "'require' method depends on File"  unless Object.const_defined?(:File)
     raise TypeError  unless path.class == String
 
-
     if (path[0] == '/' || path[0] == '.') && File.exist?(path)
       realpath = File.realpath path
       $__mruby_loading_files__ << realpath
@@ -76,5 +75,13 @@ module Kernel
 end
 
 $LOAD_PATH ||= []
+$LOAD_PATH << '.'
+
+if Object.const_defined?(:ENV)
+  $LOAD_PATH.unshift(*ENV['MRBLIB'].split(':')) unless ENV['MRBLIB'].nil?
+end
+
+$LOAD_PATH.uniq!
+
 $" ||= []
 $__mruby_loading_files__ ||= []
