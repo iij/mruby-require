@@ -1,6 +1,6 @@
 class LoadError < ScriptError; end
 
-class LoadUtil
+module Kernel
   def load(path)
     raise NotImplementedError.new "'require' method depends on File"  unless Object.const_defined?(:File)
     raise TypeError  unless path.class == String
@@ -62,17 +62,6 @@ class LoadUtil
   end
 end
 
-
-module Kernel
-  def load(path)
-    LoadUtil.new.load(path)
-  end
-
-  def require(path)
-    LoadUtil.new.require(path)
-  end
-
-end
 
 $LOAD_PATH ||= []
 $LOAD_PATH << '.'
