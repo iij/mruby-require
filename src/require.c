@@ -7,7 +7,7 @@
 #include "opcode.h"
 #include "error.h"
 
-#define E_LOAD_ERROR (mrb_class_obj_get(mrb, "LoadError"))
+#define E_LOAD_ERROR (mrb_class_get(mrb, "LoadError"))
 
 mrb_value
 mrb_yield_internal(mrb_state *mrb, mrb_value b, int argc, mrb_value *argv, mrb_value self, struct RClass *c);
