@@ -3,11 +3,6 @@
 # mrbgems test runner
 #
 
-DEPEND_GEMS = {
-  'tmp/mruby-io'       => 'https://github.com/iij/mruby-io.git',
-  'tmp/mruby-dir'      => 'https://github.com/iij/mruby-dir.git',
-  'tmp/mruby-tempfile' => 'https://github.com/iij/mruby-tempfile.git',
-}
 gemname = File.basename(File.dirname(File.expand_path __FILE__))
 
 if __FILE__ == $0
@@ -21,29 +16,16 @@ if __FILE__ == $0
     system "git clone #{repository} #{dir}"
   end
 
-  DEPEND_GEMS.each do |path, url|
-    unless File.exist?(path)
-      system "git clone #{url} #{path}"
-    end
-  end
-
   exit system(%Q[cd #{dir}; MRUBY_CONFIG=#{File.expand_path __FILE__} ruby minirake #{build_args.join(' ')}])
 end
 
 MRuby::Build.new do |conf|
   toolchain :gcc
-  conf.gems.clear
+  conf.gembox 'default'
 
-  conf.gem "#{root}/mrbgems/mruby-sprintf"
-  conf.gem "#{root}/mrbgems/mruby-print"
-
-  Dir.glob("#{root}/mrbgems/mruby-*") do |x|
-    conf.gem x unless x =~ /\/mruby-(print|sprintf)$/
-  end
-
-  DEPEND_GEMS.each do |path, url|
-    conf.gem path
-  end
+  conf.gem :git => 'https://github.com/iij/mruby-io.git'
+  conf.gem :git => 'https://github.com/iij/mruby-dir.git'
+  conf.gem :git => 'https://github.com/iij/mruby-tempfile.git'
 
   conf.gem File.expand_path(File.dirname(__FILE__))
 end
