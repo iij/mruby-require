@@ -7,6 +7,9 @@
 #include "opcode.h"
 #include "error.h"
 
+#include <stdlib.h>
+#include <sys/stat.h>
+
 #define E_LOAD_ERROR (mrb_class_get(mrb, "LoadError"))
 
 mrb_value
@@ -74,8 +77,10 @@ static mrb_value
 mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
 {
   char *path_ptr = NULL;
+  char tmpname[] = "tmp.XXXXXXXX";
+  mode_t mask;
   FILE *tmpfp = NULL;
-  int ret;
+  int fd = -1, ret;
   mrb_value code, path = mrb_nil_value();
 
   mrb_get_args(mrb, "S|S", &code, &path);
@@ -84,9 +89,16 @@ mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
   }
   path_ptr = mrb_str_to_cstr(mrb, path);
 
-  tmpfp = tmpfile();
+  mask = umask(077);
+  fd = mkstemp(tmpname);
+  if (fd == -1) {
+    mrb_sys_fail(mrb, "can't create mkstemp() at mrb_require_load_rb_str");
+  }
+  umask(mask);
+
+  tmpfp = fopen(tmpname, "w+");
   if (tmpfp == NULL) {
-    mrb_sys_fail(mrb, "can't create tmpfile() at mrb_require_load_rb_str");
+    mrb_sys_fail(mrb, "can't open temporay file at mrb_require_load_rb_str");
   }
 
   ret = compile_rb2mrb(mrb, RSTRING_PTR(code), RSTRING_LEN(code), path_ptr, tmpfp);
@@ -130,6 +142,7 @@ mrb_require_load_mrb_file(mrb_state *mrb, mrb_value self)
   }
 
   ret = mrb_read_irep_file(mrb, fp);
+  fclose(fp);
 
   if (ret >= 0) {
     eval_load_irep(mrb, ret);
