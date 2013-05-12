@@ -104,6 +104,7 @@ mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
   ret = compile_rb2mrb(mrb, RSTRING_PTR(code), RSTRING_LEN(code), path_ptr, tmpfp);
   if (ret != MRB_DUMP_OK) {
     fclose(tmpfp);
+    remove(tmpname);
     mrb_raisef(mrb, E_LOAD_ERROR, "can't load file -- %S", path);
     return mrb_nil_value();
   }
@@ -111,6 +112,7 @@ mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
   rewind(tmpfp);
   ret = mrb_read_irep_file(mrb, tmpfp);
   fclose(tmpfp);
+  remove(tmpname);
 
   if (ret >= 0) {
     eval_load_irep(mrb, ret);
