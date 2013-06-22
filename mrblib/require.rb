@@ -33,7 +33,8 @@ module Kernel
       filename = nil
       dir = ($LOAD_PATH || []).find do |dir0|
         filename = filenames.find do |fname|
-          File.exist?(File.join dir0, fname)
+          path0 = File.join dir0, fname
+          File.file?(path0) && File.exist?(path0)
         end
       end
 

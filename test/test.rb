@@ -63,6 +63,17 @@ assert("require 'test'") do
   assert_equal 789, $require_test_variable
 end
 
+File.open(File.join($require_test_dir, "test_dir.rb"), "w") do |fp|
+  fp.puts "$test_dir = 'test_dir'"
+end
+Dir.mkdir(File.join($require_test_dir, "test_dir"))
+
+assert("require 'test_dir'") do
+  assert_equal nil, $test_dir
+  assert_equal true, require("test_dir")
+  assert_equal "test_dir", $test_dir
+end
+
 File.open(File.join($require_test_dir, "loop1.rb"), "w") do |fp|
   fp.puts "require 'loop2.rb'"
   fp.puts "$loop1 = 'loop1'"
