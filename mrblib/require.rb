@@ -5,10 +5,10 @@ module Kernel
     raise NotImplementedError.new "'require' method depends on File"  unless Object.const_defined?(:File)
     raise TypeError  unless path.class == String
 
-    if File.exist?(path) && File.extname(path) == ".rb"
-      _load_rb_str File.open(path).read, path
-    elsif File.exist?(path) && File.extname(path) == ".mrb"
+    if File.exist?(path) && File.extname(path) == ".mrb"
       _load_mrb_file path
+    elsif File.exist?(path)
+      _load_rb_str File.open(path).read, path
     else
       raise LoadError.new "File not found -- #{path}"
     end
@@ -18,31 +18,39 @@ module Kernel
     raise NotImplementedError.new "'require' method depends on File"  unless Object.const_defined?(:File)
     raise TypeError  unless path.class == String
 
-    if (path[0] == '/' || path[0] == '.') && File.exist?(path)
-      realpath = File.realpath path
-      $__mruby_loading_files__ << realpath
-      load realpath
-      $" << realpath
-      $__mruby_loading_files__.delete realpath
+    # require method can load .rb, .mrb or without-ext filename only.
+    unless ["", ".rb", ".mrb"].include? File.extname(path)
+      raise LoadError.new "cannot load such file -- #{path}"
+    end
+
+    filenames = []
+    if File.extname(path).size == 0
+      filenames << "#{path}.rb"
+      filenames << "#{path}.mrb"
     else
-      filenames = [path]
-      if File.extname(path).size == 0
-        filenames << "#{path}.rb"
-        filenames << "#{path}.mrb"
+      filenames << path
+    end
+
+    dir = nil
+    filename = nil
+    if ['/', '.'].include? path[0]
+      path0 = filenames.find do |fname|
+        File.file?(fname) && File.exist?(fname)
       end
-      filename = nil
+    else
       dir = ($LOAD_PATH || []).find do |dir0|
         filename = filenames.find do |fname|
           path0 = File.join dir0, fname
           File.file?(path0) && File.exist?(path0)
         end
       end
+      path0 = dir && filename ? File.join(dir, filename) : nil
+    end
 
-      if dir && filename
-        __require__(File.join dir, filename)
-      else
-        __require__(path)
-      end
+    if path0 && File.exist?(path0) && File.file?(path0)
+      __require__ path0
+    else
+      raise LoadError.new "cannot load such file -- #{path}"
     end
   end
 

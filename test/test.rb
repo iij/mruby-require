@@ -74,6 +74,36 @@ assert("require 'test_dir'") do
   assert_equal "test_dir", $test_dir
 end
 
+File.open(File.join($require_test_dir, "test_conf.conf"), "w") do |fp|
+  fp.puts "$test_conf = 'test_conf'"
+end
+assert("require 'test_conf'") do
+  assert_equal nil, $test_conf
+  assert_raise LoadError, "require 'test_conf.conf' should be fail" do
+    require("test_conf.conf")
+  end
+  assert_raise LoadError, "require method can load .rb .mrb only (with path)" do
+    require File.join($require_test_dir, "test_conf.conf")
+  end
+  assert_equal true, load(File.join($require_test_dir, "test_conf.conf"))
+  assert_equal "test_conf", $test_conf
+end
+
+$LOAD_PATH = []
+
+assert("require with absolute path") do
+  $" = []
+  assert_raise LoadError, "cannot load test.rb" do
+    require "test"
+  end
+  assert_equal true, require(File.join($require_test_dir, "test"))
+  assert_raise LoadError, "require '/tmp/.../test_conf.conf' should be fail" do
+    require(File.join($require_test_dir, "test_conf.conf"))
+  end
+end
+
+$LOAD_PATH = [$require_test_dir]
+
 File.open(File.join($require_test_dir, "loop1.rb"), "w") do |fp|
   fp.puts "require 'loop2.rb'"
   fp.puts "$loop1 = 'loop1'"
