@@ -19,6 +19,8 @@ def test_setup
     fp.puts "$test_conf = 'test_conf'"
   end
 
+  File.open(File.join($dir, "empty.rb"), "w")
+
   test_reset
 end
 
@@ -107,6 +109,13 @@ assert("require 'test_conf' should be fail") do
   assert_raise LoadError, "require method can't load *.conf" do
     require File.join($dir, "test_conf.conf")
   end
+end
+
+assert("require 'empty' should be success") do
+  test_reset
+
+  assert_true require("empty")
+  assert_equal 0, File.size(File.join($dir, "empty.rb"))
 end
 
 assert("load 'test.rb' should be success") do
