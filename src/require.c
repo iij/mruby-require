@@ -30,8 +30,8 @@ static int
 compile_rb2mrb(mrb_state *mrb0, const char *code, int code_len, const char *path, FILE* tmpfp)
 {
   mrb_state *mrb = mrb_open();
+  mrb_value result;
   mrbc_context *c;
-  mrb_value irep_size;
   int ret = -1;
   int irep_len = mrb->irep_len;
   int debuginfo = 1;
@@ -42,15 +42,21 @@ compile_rb2mrb(mrb_state *mrb0, const char *code, int code_len, const char *path
     mrbc_filename(mrb, c, path);
   }
 
-  irep_size = mrb_load_nstring_cxt(mrb, code, code_len, c);
+  result = mrb_load_nstring_cxt(mrb, code, code_len, c);
+  if (mrb_undef_p(result) || mrb_fixnum(result) < 0) {
+    mrbc_context_free(mrb, c);
+    mrb_close(mrb);
+    return MRB_DUMP_GENERAL_FAILURE;
+  }
 
-  mrb->irep     += mrb_fixnum(irep_size);
+  mrb->irep     += irep_len;
   mrb->irep_len -= irep_len;
 
   ret = mrb_dump_irep_binary(mrb, 0, debuginfo, tmpfp);
 
-  mrb->irep     -= mrb_fixnum(irep_size);
+  mrb->irep     -= irep_len;
   mrb->irep_len += irep_len;
+
   mrbc_context_free(mrb, c);
   mrb_close(mrb);
 
