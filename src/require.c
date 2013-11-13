@@ -43,7 +43,7 @@ compile_rb2mrb(mrb_state *mrb0, const char *code, int code_len, const char *path
   }
 
   result = mrb_load_nstring_cxt(mrb, code, code_len, c);
-  if (mrb_undef_p(result) || mrb_fixnum(result) < 0) {
+  if (mrb_undef_p(result)) {
     mrbc_context_free(mrb, c);
     mrb_close(mrb);
     return MRB_DUMP_GENERAL_FAILURE;
