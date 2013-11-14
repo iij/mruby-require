@@ -1,3 +1,6 @@
+#include <err.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "mruby.h"
 #include "mruby/compile.h"
 #include "mruby/dump.h"
@@ -33,8 +36,8 @@ compile_rb2mrb(mrb_state *mrb0, const char *code, int code_len, const char *path
   mrb_value result;
   mrbc_context *c;
   int ret = -1;
-  int irep_len = mrb->irep_len;
   int debuginfo = 1;
+  mrb_irep *irep;
 
   c = mrbc_context_new(mrb);
   c->no_exec = 1;
@@ -49,13 +52,9 @@ compile_rb2mrb(mrb_state *mrb0, const char *code, int code_len, const char *path
     return MRB_DUMP_GENERAL_FAILURE;
   }
 
-  mrb->irep     += irep_len;
-  mrb->irep_len -= irep_len;
-
-  ret = mrb_dump_irep_binary(mrb, 0, debuginfo, tmpfp);
-
-  mrb->irep     -= irep_len;
-  mrb->irep_len += irep_len;
+  irep = mrb_proc_ptr(result)->body.irep;
+  debuginfo = 0;  /* XXX */
+  ret = mrb_dump_irep_binary(mrb, irep, debuginfo, tmpfp);
 
   mrbc_context_free(mrb, c);
   mrb_close(mrb);
@@ -64,11 +63,10 @@ compile_rb2mrb(mrb_state *mrb0, const char *code, int code_len, const char *path
 }
 
 static void
-eval_load_irep(mrb_state *mrb, int n)
+eval_load_irep(mrb_state *mrb, mrb_irep *irep)
 {
   int ai;
   struct RProc *proc;
-  mrb_irep *irep = mrb->irep[n];
 
   replace_stop_with_return(mrb, irep);
   proc = mrb_proc_new(mrb, irep);
@@ -87,6 +85,7 @@ mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
   mode_t mask;
   FILE *tmpfp = NULL;
   int fd = -1, ret;
+  mrb_irep *irep;
   mrb_value code, path = mrb_nil_value();
 
   mrb_get_args(mrb, "S|S", &code, &path);
@@ -116,12 +115,12 @@ mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
   }
 
   rewind(tmpfp);
-  ret = mrb_read_irep_file(mrb, tmpfp);
+  irep = mrb_read_irep_file(mrb, tmpfp);
   fclose(tmpfp);
   remove(tmpname);
 
-  if (ret >= 0) {
-    eval_load_irep(mrb, ret);
+  if (irep) {
+    eval_load_irep(mrb, irep);
   } else if (mrb->exc) {
     // fail to load
     longjmp(*(jmp_buf*)mrb->jmp, 1);
@@ -138,7 +137,7 @@ mrb_require_load_mrb_file(mrb_state *mrb, mrb_value self)
 {
   char *path_ptr = NULL;
   FILE *fp = NULL;
-  int ret;
+  mrb_irep *irep;
   mrb_value path;
 
   mrb_get_args(mrb, "S", &path);
@@ -149,11 +148,11 @@ mrb_require_load_mrb_file(mrb_state *mrb, mrb_value self)
     mrb_raisef(mrb, E_LOAD_ERROR, "can't open file -- %S", path);
   }
 
-  ret = mrb_read_irep_file(mrb, fp);
+  irep = mrb_read_irep_file(mrb, fp);
   fclose(fp);
 
-  if (ret >= 0) {
-    eval_load_irep(mrb, ret);
+  if (irep) {
+    eval_load_irep(mrb, irep);
   } else if (mrb->exc) {
     // fail to load
     longjmp(*(jmp_buf*)mrb->jmp, 1);
