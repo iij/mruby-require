@@ -53,7 +53,6 @@ compile_rb2mrb(mrb_state *mrb0, const char *code, int code_len, const char *path
   }
 
   irep = mrb_proc_ptr(result)->body.irep;
-  debuginfo = 0;  /* XXX */
   ret = mrb_dump_irep_binary(mrb, irep, debuginfo, tmpfp);
 
   mrbc_context_free(mrb, c);
