@@ -1,6 +1,35 @@
 mruby-require
 =============
 
+"mruby-require" is a mrbgem, provides
+[require](http://docs.ruby-lang.org/ja/2.0.0/class/Kernel.html#M_REQUIRE) and
+[load](http://docs.ruby-lang.org/ja/2.0.0/class/Kernel.html#M_LOAD) for mruby.
+
+### Exmaple:
+
+```Ruby
+# a.rb
+
+require "b"
+
+b = Bclass.new
+p b.method
+```
+```Ruby
+# b.rb
+
+class Bclass
+  def method
+    "BBB"
+  end
+end
+```
+```sh
+% mruby a.rb
+"BBB"
+```
+
+
 ### To build:
 
 Depend mrbgems:
