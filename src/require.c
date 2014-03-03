@@ -1,6 +1,8 @@
 #include <err.h>
 #include <fcntl.h>
+#include <setjmp.h>
 #include <unistd.h>
+
 #include "mruby.h"
 #include "mruby/compile.h"
 #include "mruby/dump.h"
