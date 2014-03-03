@@ -5,7 +5,7 @@ mruby-require
 [require](http://docs.ruby-lang.org/ja/2.0.0/class/Kernel.html#M_REQUIRE) and
 [load](http://docs.ruby-lang.org/ja/2.0.0/class/Kernel.html#M_LOAD) for mruby.
 
-### Exmaple:
+### Example:
 
 ```Ruby
 # a.rb
