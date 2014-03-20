@@ -17,8 +17,12 @@
 
 #define E_LOAD_ERROR (mrb_class_get(mrb, "LoadError"))
 
+#if MRUBY_RELEASE_NO < 10000
+#define mrb_yield_with_class mrb_yield_internal
+#endif
+
 mrb_value
-mrb_yield_internal(mrb_state *mrb, mrb_value b, int argc, mrb_value *argv, mrb_value self, struct RClass *c);
+mrb_yield_with_class(mrb_state *mrb, mrb_value b, int argc, mrb_value *argv, mrb_value self, struct RClass *c);
 
 static void
 replace_stop_with_return(mrb_state *mrb, mrb_irep *irep)
@@ -74,7 +78,7 @@ eval_load_irep(mrb_state *mrb, mrb_irep *irep)
   proc->target_class = mrb->object_class;
 
   ai = mrb_gc_arena_save(mrb);
-  mrb_yield_internal(mrb, mrb_obj_value(proc), 0, NULL, mrb_top_self(mrb), mrb->object_class);
+  mrb_yield_with_class(mrb, mrb_obj_value(proc), 0, NULL, mrb_top_self(mrb), mrb->object_class);
   mrb_gc_arena_restore(mrb, ai);
 }
 
