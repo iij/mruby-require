@@ -18,11 +18,9 @@
 #define E_LOAD_ERROR (mrb_class_get(mrb, "LoadError"))
 
 #if MRUBY_RELEASE_NO < 10000
+mrb_value mrb_yield_internal(mrb_state *mrb, mrb_value b, int argc, mrb_value *argv, mrb_value self, struct RClass *c);
 #define mrb_yield_with_class mrb_yield_internal
 #endif
-
-mrb_value
-mrb_yield_with_class(mrb_state *mrb, mrb_value b, int argc, mrb_value *argv, mrb_value self, struct RClass *c);
 
 static void
 replace_stop_with_return(mrb_state *mrb, mrb_irep *irep)
