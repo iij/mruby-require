@@ -1,3 +1,5 @@
+$" = [] # init
+
 assert "Kernel#_load_rb_str" do
   assert_equal true, self.methods.include?(:_load_rb_str)
   assert_equal false, Object.const_defined?(:LOAD_RB_STR_TEST)
