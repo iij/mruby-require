@@ -30,14 +30,6 @@ end
 ```
 
 
-### To build:
-
-Depend mrbgems:
-
- * [iij/mruby-io](https://github.com/iij/mruby-io)
- * [iij/mruby-dir](https://github.com/iij/mruby-dir)
- * [iij/mruby-tempfile](https://github.com/iij/mruby-tempfile)
-
 ### To run the tests:
 
     ruby run_test.rb
