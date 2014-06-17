@@ -104,8 +104,9 @@ mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
   }
   umask(mask);
 
-  tmpfp = fopen(tmpname, "w+");
+  tmpfp = fdopen(fd, "r+");
   if (tmpfp == NULL) {
+    close(fd);
     mrb_sys_fail(mrb, "can't open temporay file at mrb_require_load_rb_str");
   }
 
