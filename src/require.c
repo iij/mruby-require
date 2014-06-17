@@ -1,4 +1,6 @@
+#if !(defined(_WIN32) || defined(_WIN64))
 #include <err.h>
+#endif
 #include <fcntl.h>
 #include <setjmp.h>
 #include <unistd.h>
@@ -20,6 +22,24 @@
 #if MRUBY_RELEASE_NO < 10000
 mrb_value mrb_yield_internal(mrb_state *mrb, mrb_value b, int argc, mrb_value *argv, mrb_value self, struct RClass *c);
 #define mrb_yield_with_class mrb_yield_internal
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+  #include <windows.h>
+  int mkstemp(char *template)
+  {
+    DWORD pathSize;
+    char pathBuffer[1000];
+    char tempFilename[MAX_PATH];
+    UINT uniqueNum;
+    pathSize = GetTempPath(1000, pathBuffer);
+    if (pathSize < 1000) { pathBuffer[pathSize] = 0; }
+    else                 { pathBuffer[0] = 0; }
+    uniqueNum = GetTempFileName(pathBuffer, template, 0, tempFilename);
+    if (uniqueNum == 0) return -1;
+    strncpy(template, tempFilename, MAX_PATH);
+    return open(tempFilename, _O_RDWR|_O_BINARY);
+  }
 #endif
 
 static void
@@ -84,7 +104,11 @@ static mrb_value
 mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
 {
   char *path_ptr = NULL;
+#if defined(_WIN32) || defined(_WIN64)
+  char tmpname[MAX_PATH] = "tmp.XXXXXXXX";
+#else
   char tmpname[] = "tmp.XXXXXXXX";
+#endif
   mode_t mask;
   FILE *tmpfp = NULL;
   int fd = -1, ret;
