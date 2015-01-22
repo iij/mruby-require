@@ -2,8 +2,7 @@ class LoadError < ScriptError; end
 
 module Kernel
   def load(path)
-    raise NotImplementedError.new "'require' method depends on File"  unless Object.const_defined?(:File)
-    raise TypeError  unless path.class == String
+    raise TypeError unless path.class == String
 
     if File.exist?(path) && File.extname(path) == ".mrb"
       _load_mrb_file path
@@ -15,8 +14,7 @@ module Kernel
   end
 
   def require(path)
-    raise NotImplementedError.new "'require' method depends on File"  unless Object.const_defined?(:File)
-    raise TypeError  unless path.class == String
+    raise TypeError unless path.class == String
 
     # require method can load .rb, .mrb or without-ext filename only.
     unless ["", ".rb", ".mrb"].include? File.extname(path)
