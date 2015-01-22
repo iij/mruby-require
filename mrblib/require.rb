@@ -7,10 +7,13 @@ module Kernel
     if File.exist?(path) && File.extname(path) == ".mrb"
       _load_mrb_file path
     elsif File.exist?(path)
-      _load_rb_str File.open(path).read.to_s, path
+      # _load_rb_str File.open(path).read.to_s, path
+      Kernel.eval File.open(path).read.to_s, nil, path
     else
       raise LoadError.new "File not found -- #{path}"
     end
+
+    true
   end
 
   def require(path)
