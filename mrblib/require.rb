@@ -1,6 +1,17 @@
 class LoadError < ScriptError; end
 
 module Kernel
+  begin
+    eval "1", nil
+    def _eval_load(*args)
+      Kernel.eval(*args)
+    end
+  rescue ArgumentError
+    def _eval_load(*args)
+      Kernel.eval(args[0])
+    end
+  end
+
   def load(path)
     raise TypeError unless path.class == String
 
@@ -8,7 +19,7 @@ module Kernel
       _load_mrb_file path
     elsif File.exist?(path)
       # _load_rb_str File.open(path).read.to_s, path
-      Kernel.eval File.open(path).read.to_s, nil, path
+      _eval_load File.open(path).read.to_s, nil, path
     else
       raise LoadError.new "File not found -- #{path}"
     end
