@@ -24,6 +24,12 @@ mrb_value mrb_yield_internal(mrb_state *mrb, mrb_value b, int argc, mrb_value *a
 #define mrb_yield_with_class mrb_yield_internal
 #endif
 
+#if MRUBY_RELEASE_NO < 10400
+#define MRB_PROC_SET_TARGET_CLASS(p,tc) do { \
+  (p)->target_class = (tc); \
+} while (0)
+#endif
+
 #if defined(_WIN32) || defined(_WIN64)
   #include <windows.h>
   int mkstemp(char *template)
