@@ -47,19 +47,19 @@ module Kernel
     filename = nil
     if ['/', '.'].include? path[0]
       path0 = filenames.find do |fname|
-        File.file?(fname) && File.exist?(fname)
+        File.file?(fname)
       end
     else
       dir = ($LOAD_PATH || []).find do |dir0|
         filename = filenames.find do |fname|
           path0 = File.join dir0, fname
-          File.file?(path0) && File.exist?(path0)
+          File.file?(path0)
         end
       end
       path0 = dir && filename ? File.join(dir, filename) : nil
     end
 
-    if path0 && File.exist?(path0) && File.file?(path0)
+    if path0 && File.file?(path0)
       __require__ path0
     else
       raise LoadError.new "cannot load such file -- #{path}"
