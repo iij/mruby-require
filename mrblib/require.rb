@@ -21,7 +21,7 @@ module Kernel
       # _load_rb_str File.open(path).read.to_s, path
       _require_eval_load File.open(path).read.to_s, nil, path
     else
-      raise LoadError.new "File not found -- #{path}"
+      raise LoadError, "File not found -- #{path}"
     end
 
     true
@@ -32,7 +32,7 @@ module Kernel
 
     # require method can load .rb, .mrb or without-ext filename only.
     unless ["", ".rb", ".mrb"].include? File.extname(path)
-      raise LoadError.new "cannot load such file -- #{path}"
+      raise LoadError, "cannot load such file -- #{path}"
     end
 
     filenames = []
@@ -59,20 +59,14 @@ module Kernel
       path0 = dir && filename ? File.join(dir, filename) : nil
     end
 
-    if path0 && File.file?(path0)
-      __require__ path0
-    else
-      raise LoadError.new "cannot load such file -- #{path}"
+    unless path0 && File.file?(path0)
+      raise LoadError, "cannot load such file -- #{path}"
     end
-  end
 
-  def __require__(realpath)
-    raise LoadError.new "File not found -- #{realpath}"  unless File.exist? realpath
-    $" ||= []
-    $__mruby_loading_files__ ||= []
+    realpath = File.realpath(path0)
 
     # already required
-    return false  if ($" + $__mruby_loading_files__).include?(realpath)
+    return false if ($" + $__mruby_loading_files__).include?(realpath)
 
     $__mruby_loading_files__ << realpath
     load realpath
