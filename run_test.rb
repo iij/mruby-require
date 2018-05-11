@@ -21,6 +21,7 @@ MRuby::Build.new do |conf|
   conf.gembox 'default'
 
   conf.gem :core => 'mruby-eval'
+  conf.gem :core => 'mruby-io'
   conf.gem :git => 'https://github.com/iij/mruby-dir.git'
   conf.gem :git => 'https://github.com/iij/mruby-tempfile.git'
 
