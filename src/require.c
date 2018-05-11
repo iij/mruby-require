@@ -99,6 +99,7 @@ eval_load_irep(mrb_state *mrb, mrb_irep *irep)
 
   replace_stop_with_return(mrb, irep);
   proc = mrb_proc_new(mrb, irep);
+  mrb_irep_decref(mrb, irep);
   MRB_PROC_SET_TARGET_CLASS(proc, mrb->object_class);
 
   ai = mrb_gc_arena_save(mrb);
