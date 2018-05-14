@@ -24,7 +24,7 @@ MRuby::Build.new do |conf|
   enable_test
 
   conf.gem :core => 'mruby-eval'
-  conf.gem :git => 'https://github.com/iij/mruby-io.git'
+  conf.gem :core => 'mruby-io'
   conf.gem :git => 'https://github.com/iij/mruby-dir.git'
   conf.gem :git => 'https://github.com/iij/mruby-tempfile.git'
 
