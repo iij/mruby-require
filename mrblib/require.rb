@@ -1,13 +1,14 @@
 class LoadError < ScriptError; end
 
+$__mruby_require_toplevel_self__ = self
 begin
   eval "1", nil
   def _require_eval_load(*args)
-    self.eval(*args)
+    $__mruby_require_toplevel_self__.eval(*args)
   end
 rescue ArgumentError
   def _require_eval_load(*args)
-    self.eval(args[0])
+    $__mruby_require_toplevel_self__.eval(args[0])
   end
 end
 
@@ -80,11 +81,9 @@ end
 
 $LOAD_PATH ||= []
 $LOAD_PATH << '.'
-
 if Object.const_defined?(:ENV)
   $LOAD_PATH.unshift(*ENV['MRBLIB'].split(':')) unless ENV['MRBLIB'].nil?
 end
-
 $LOAD_PATH.uniq!
 
 $" ||= []
