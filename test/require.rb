@@ -1,10 +1,36 @@
 assert("Kernel.require") do
-  # see d/required.rb
+  # preparation
   $gvar1 = 0
   lvar1 = 0
   class MrubyRequireClass; end
 
-  assert_true require(File.join(File.dirname(__FILE__), "d", "required.rb"))
+  ret = Tempfile.open(["mruby-require-test", ".rb"]) { |f|
+    f.write <<-PROGRAM
+      # global variables
+      $gvar0 = 1
+      $gvar1 = 1
+
+      # toplevel local variables
+      lvar0 = 1
+      lvar1 = 1
+
+      # define a procedure
+      def proc0
+        :proc0
+      end
+
+      # define a new method of an existing class.
+      class MrubyRequireClass
+        def foo
+          :foo
+        end
+      end
+    PROGRAM
+    f.flush
+
+    require(f.path)
+  }
+  assert_true ret
 
   # Kernel.require can create a global variable
   assert_equal 1, $gvar0
