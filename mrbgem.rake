@@ -9,6 +9,4 @@ MRuby::Gem::Specification.new('mruby-require') do |spec|
   spec.add_test_dependency 'mruby-dir'
   spec.add_test_dependency 'mruby-tempfile'
   spec.add_test_dependency 'mruby-time'
-
-  spec.cc.include_paths << "#{build.root}/src"
 end

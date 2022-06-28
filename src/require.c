@@ -11,8 +11,14 @@
 #include "mruby/string.h"
 #include "mruby/proc.h"
 
-#include "opcode.h"
-#include "error.h"
+#if defined(MRUBY_RELEASE_NO) && MRUBY_RELEASE_NO >= 10100
+#include "mruby/opcode.h"
+#include "mruby/error.h"
+#else
+#include "mruby/../../src/opcode.h"
+#include "mruby/../../src/error.h"
+#define MRUBY_RELEASE_NO 0
+#endif
 
 #include <stdlib.h>
 #include <sys/stat.h>
