@@ -16,6 +16,8 @@ if __FILE__ == $0
   exit system(%Q[cd #{dir}; MRUBY_CONFIG=#{File.expand_path __FILE__} ruby minirake #{build_args.join(' ')}])
 end
 
+MRuby::Lockfile.disable rescue nil
+
 MRuby::Build.new do |conf|
   toolchain :gcc
   conf.gembox 'default'
