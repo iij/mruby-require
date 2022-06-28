@@ -1,0 +1,47 @@
+name: build and test
+
+on:
+  push:
+    branches: "*"
+  pull_request:
+    branches: "*"
+jobs:
+  ubuntu-20-04:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 10
+    name: ubuntu-20.04 (mruby-${{matrix.TARGET_MRUBY}})
+    strategy:
+      fail-fast: false
+      matrix:
+        TARGET_MRUBY:
+        - master
+        - stable
+        - 3.1.0
+        - 3.0.0
+        - 2.1.2
+        #- 2.1.1
+        #- 2.1.0
+        #- 2.0.1
+        #- 2.0.0
+        #- 1.4.1
+        #- 1.4.0
+        #- 1.3.0
+        #- 1.2.0
+    env:
+      MRUBY_URL: "https://github.com/mruby/mruby/archive/${{matrix.TARGET_MRUBY}}.tar.gz"
+      MRUBY_DIR: "mruby-${{matrix.TARGET_MRUBY}}"
+      MRUBY_CONFIG: ../run_test.rb
+      CC: gcc
+    steps:
+    - uses: actions/checkout@v3
+    - name: fetch and extract mruby
+      run: wget -O- $MRUBY_URL | tar xzf -
+    - name: build
+      run: -|
+        rake -vE 'Dir.chdir ENV["MRUBY_DIR"]' clean
+        rake -mvE 'Dir.chdir ENV["MRUBY_DIR"]' || rake -vE 'Dir.chdir ENV["MRUBY_DIR"]'
+    - name: test
+      # for missing /dev/tty; "RuntimeError: IO#isatty => open /dev/tty (mrbgems: mruby-io)"
+      # see https://github.com/gfx/example-github-actions-with-tty
+      shell: 'script -q -e -c "bash {0}"'
+      run: rake -vE 'Dir.chdir ENV["MRUBY_DIR"]' test
