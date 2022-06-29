@@ -2,7 +2,6 @@
 #include <err.h>
 #endif
 #include <fcntl.h>
-#include <setjmp.h>
 #include <unistd.h>
 
 #include "mruby.h"
@@ -167,7 +166,7 @@ mrb_require_load_rb_str(mrb_state *mrb, mrb_value self)
     eval_load_irep(mrb, irep);
   } else if (mrb->exc) {
     // fail to load
-    longjmp(*(jmp_buf*)mrb->jmp, 1);
+    mrb_exc_raise(mrb, mrb_obj_value(mrb->exc));
   } else {
     mrb_raisef(mrb, E_LOAD_ERROR, "can't load file -- %S", path);
     return mrb_nil_value();
@@ -199,7 +198,7 @@ mrb_require_load_mrb_file(mrb_state *mrb, mrb_value self)
     eval_load_irep(mrb, irep);
   } else if (mrb->exc) {
     // fail to load
-    longjmp(*(jmp_buf*)mrb->jmp, 1);
+    mrb_exc_raise(mrb, mrb_obj_value(mrb->exc));
   } else {
     mrb_raisef(mrb, E_LOAD_ERROR, "can't load file -- %S", path);
     return mrb_nil_value();
